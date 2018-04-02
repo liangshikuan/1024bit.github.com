@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="本文仅供参考，如有错误还请联系作者改进学习 liangshikuan@gmail.com TensorFlow  使用图（graph）来标识计算。 在会话（session）中来执行图。 使用tensor来表示数据。 通过变量（Variable）维护状态。 使用feed和fetch可以为任意的操作（arbitrary operation）赋值或从其中获取数据。   在图中节点称之为op节点（oper">
+<meta name="keywords" content="TensofFlow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TensorFlow初探理解">
+<meta property="og:url" content="https://www.1024b.org/2018/04/02/TensorFlow初探理解/index.html">
+<meta property="og:site_name" content="不乙">
+<meta property="og:description" content="本文仅供参考，如有错误还请联系作者改进学习 liangshikuan@gmail.com TensorFlow  使用图（graph）来标识计算。 在会话（session）中来执行图。 使用tensor来表示数据。 通过变量（Variable）维护状态。 使用feed和fetch可以为任意的操作（arbitrary operation）赋值或从其中获取数据。   在图中节点称之为op节点（oper">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://www.1024b.org/2018/04/02/TensorFlow初探理解/TensorFlow_frame.png">
+<meta property="og:updated_time" content="2018-04-02T03:30:58.332Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TensorFlow初探理解">
+<meta name="twitter:description" content="本文仅供参考，如有错误还请联系作者改进学习 liangshikuan@gmail.com TensorFlow  使用图（graph）来标识计算。 在会话（session）中来执行图。 使用tensor来表示数据。 通过变量（Variable）维护状态。 使用feed和fetch可以为任意的操作（arbitrary operation）赋值或从其中获取数据。   在图中节点称之为op节点（oper">
+<meta name="twitter:image" content="https://www.1024b.org/2018/04/02/TensorFlow初探理解/TensorFlow_frame.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>TensorFlow初探理解</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2018/04/02/My-first-blog/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://www.1024b.org/2018/04/02/TensorFlow初探理解/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&text=TensorFlow初探理解"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&title=TensorFlow初探理解"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&is_video=false&description=TensorFlow初探理解"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=TensorFlow初探理解&body=Check out this article: https://www.1024b.org/2018/04/02/TensorFlow初探理解/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&title=TensorFlow初探理解"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&title=TensorFlow初探理解"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&title=TensorFlow初探理解"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&title=TensorFlow初探理解"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&name=TensorFlow初探理解&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#TensorFlow"><span class="toc-number">1.</span> <span class="toc-text">TensorFlow</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#计算图"><span class="toc-number">1.1.</span> <span class="toc-text">计算图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#构建图"><span class="toc-number">1.2.</span> <span class="toc-text">构建图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动会话"><span class="toc-number">1.3.</span> <span class="toc-text">启动会话</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#交互式使用"><span class="toc-number">1.4.</span> <span class="toc-text">交互式使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tensor"><span class="toc-number">1.5.</span> <span class="toc-text">Tensor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量Variable"><span class="toc-number">1.6.</span> <span class="toc-text">变量Variable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fetch"><span class="toc-number">1.7.</span> <span class="toc-text">Fetch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Feed"><span class="toc-number">1.8.</span> <span class="toc-text">Feed</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        TensorFlow初探理解
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">不乙</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-04-02T03:20:33.000Z" itemprop="datePublished">2018-04-02</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/TensofFlow/">TensofFlow</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p><em>本文仅供参考，如有错误还请联系作者改进学习 <a href="mailto:liangshikuan@gmail.com" target="_blank" rel="noopener">liangshikuan@gmail.com</a></em></p>
+<h1 id="TensorFlow"><a href="#TensorFlow" class="headerlink" title="TensorFlow"></a>TensorFlow</h1><blockquote>
+<ol>
+<li>使用图（graph）来标识计算。</li>
+<li>在会话（session）中来执行图。</li>
+<li>使用tensor来表示数据。</li>
+<li>通过变量（Variable）维护状态。</li>
+<li>使用feed和fetch可以为任意的操作（arbitrary operation）赋值或从其中获取数据。</li>
+</ol>
+</blockquote>
+<p><em>在图中节点称之为op节点（operation缩写），一个op可以获取0个或多个Tensor，执行计算，参数0个或多个Tensor。每个Tensor是一个类型化的多维数组。TensorFlow图描述了计算过程，为了进行计算图必须在会话里面启动。会话将图的op分发到CPU或GPU之类的设备上，同时执行op的方法，这些方法将产生tensor返回。（Python返回numpy nadarray对象；C/C++返回tensorflow::Tensor实例）</em></p>
+<img src="/2018/04/02/TensorFlow初探理解/TensorFlow_frame.png">
+<p><a href="https://colab.research.google.com" target="_blank" rel="noopener">在线服务器资源CoLab</a></p>
+<h2 id="计算图"><a href="#计算图" class="headerlink" title="计算图"></a>计算图</h2><p>TensorFlow程序通常被组织成一个==构建阶段==和==执行阶段==：<br>在构建阶段，op的执行步骤被描述成图；在执行阶段使用会话执行途中的op。（例如咋构建阶段创建一个图来表示和训练神经网络，然后在执行阶段反复执行图中训练的op）。</p>
+<h2 id="构建图"><a href="#构建图" class="headerlink" title="构建图"></a>构建图</h2><ul>
+<li>创建源op，源op不需要任何输入（source op）. 源op的输出被传递给其他的op做运算。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">import tensorflow as tf</span><br><span class="line"></span><br><span class="line"># 创建一个常量 op, 产生一个 1x2 矩阵. 这个 op 被作为一个节点</span><br><span class="line"># 加到默认图中.</span><br><span class="line">#</span><br><span class="line"># 构造器的返回值代表该常量 op 的返回值.</span><br><span class="line">matrix1 = tf.constant([[3., 3.]])</span><br><span class="line"></span><br><span class="line"># 创建另外一个常量 op, 产生一个 2x1 矩阵.</span><br><span class="line">matrix2 = tf.constant([[2.],[2.]])</span><br><span class="line"></span><br><span class="line"># 创建一个矩阵乘法 matmul op , 把 &apos;matrix1&apos; 和 &apos;matrix2&apos; 作为输入.</span><br><span class="line"># 返回值 &apos;product&apos; 代表矩阵乘法的结果.</span><br><span class="line">product = tf.matmul(matrix1, matrix2)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># TensorFlow有一个默认的图，op构造器可以为其增加节点，以上默认图中有2个constant op和1个matmul op。</span><br></pre></td></tr></table></figure>
+<h2 id="启动会话"><a href="#启动会话" class="headerlink" title="启动会话"></a>启动会话</h2><ol>
+<li>第一步需要创建一个Session，如果没有任何构建参数，会话构造器将启动默认的图。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># 启动默认图.</span><br><span class="line">sess = tf.Session()</span><br><span class="line"></span><br><span class="line"># 调用 sess 的 &apos;run()&apos; 方法来执行矩阵乘法 op, 传入 &apos;product&apos; 作为该方法的参数. </span><br><span class="line"># 上面提到, &apos;product&apos; 代表了矩阵乘法 op 的输出, 传入它是向方法表明, 我们希望取回</span><br><span class="line"># 矩阵乘法 op 的输出.</span><br><span class="line">#</span><br><span class="line"># 整个执行过程是自动化的, 会话负责传递 op 所需的全部输入. op 通常是并发执行的.</span><br><span class="line"># </span><br><span class="line"># 函数调用 &apos;run(product)&apos; 触发了图中三个 op (两个常量 op 和一个矩阵乘法 op) 的执行.</span><br><span class="line">#</span><br><span class="line"># 返回值 &apos;result&apos; 是一个 numpy `ndarray` 对象.</span><br><span class="line">result = sess.run(product)</span><br><span class="line">print result</span><br><span class="line"># ==&gt; [[ 12.]]</span><br><span class="line"></span><br><span class="line"># 任务完成, 关闭会话.</span><br><span class="line">sess.close()</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#Session需要显示close释放资源也可以以下with来自动完成关闭动作</span><br><span class="line"></span><br><span class="line">with tf.Session() as sess:</span><br><span class="line">  result = sess.run([product])</span><br><span class="line">  print result</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>TensorFlow自动检测使用第一个GPS/CPU，除了第一个外默认不参与计算，需要明确指派op使用这些GPU，使用with…Device：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">with tf.Session() as sess:</span><br><span class="line">  with tf.device(&quot;/gpu:1&quot;):</span><br><span class="line">    matrix1 = tf.constant([[3., 3.]])</span><br><span class="line">    matrix2 = tf.constant([[2.],[2.]])</span><br><span class="line">    product = tf.matmul(matrix1, matrix2)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<h2 id="交互式使用"><a href="#交互式使用" class="headerlink" title="交互式使用"></a>交互式使用</h2><p>为了避免使用一个变量来持有会话，可以使用交互式会话InteractiveSession来代替Session。使用Tensor.eval()和Operation.run()来代替Session.run()。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># 进入一个交互式 TensorFlow 会话.</span><br><span class="line">import tensorflow as tf</span><br><span class="line">sess = tf.InteractiveSession()</span><br><span class="line"></span><br><span class="line">x = tf.Variable([1.0, 2.0])</span><br><span class="line">a = tf.constant([3.0, 3.0])</span><br><span class="line"></span><br><span class="line"># 使用初始化器 initializer op 的 run() 方法初始化 &apos;x&apos; </span><br><span class="line">x.initializer.run()</span><br><span class="line"></span><br><span class="line"># 增加一个减法 sub op, 从 &apos;x&apos; 减去 &apos;a&apos;. 运行减法 op, 输出结果 </span><br><span class="line">sub = tf.sub(x, a)</span><br><span class="line">print sub.eval()</span><br><span class="line"># ==&gt; [-2. -1.]</span><br></pre></td></tr></table></figure>
+<h2 id="Tensor"><a href="#Tensor" class="headerlink" title="Tensor"></a>Tensor</h2><p>TensorFlow程序使用Tensor数据结构来代表所有数据，计算图中操作间传递数据都是tensor。它包含一个静态类型rank和一个shape。</p>
+<h2 id="变量Variable"><a href="#变量Variable" class="headerlink" title="变量Variable"></a>变量Variable</h2><p>变量维护图执行过程中的状态信息。以下例子使用变量实现一个简单计数器：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"># 创建一个变量, 初始化为标量 0.</span><br><span class="line">state = tf.Variable(0, name=&quot;counter&quot;)</span><br><span class="line"></span><br><span class="line"># 创建一个 op, 其作用是使 state 增加 1</span><br><span class="line"></span><br><span class="line">one = tf.constant(1)</span><br><span class="line">new_value = tf.add(state, one)</span><br><span class="line">update = tf.assign(state, new_value)</span><br><span class="line"></span><br><span class="line"># 启动图后, 变量必须先经过`初始化` (init) op 初始化,</span><br><span class="line"># 首先必须增加一个`初始化` op 到图中.</span><br><span class="line">init_op = tf.initialize_all_variables()</span><br><span class="line"></span><br><span class="line"># 启动图, 运行 op</span><br><span class="line">with tf.Session() as sess:</span><br><span class="line">  # 运行 &apos;init&apos; op</span><br><span class="line">  sess.run(init_op)</span><br><span class="line">  # 打印 &apos;state&apos; 的初始值</span><br><span class="line">  print sess.run(state)</span><br><span class="line">  # 运行 op, 更新 &apos;state&apos;, 并打印 &apos;state&apos;</span><br><span class="line">  for _ in range(3):</span><br><span class="line">    sess.run(update)</span><br><span class="line">    print sess.run(state)</span><br><span class="line"></span><br><span class="line"># 输出:</span><br><span class="line"></span><br><span class="line"># 0</span><br><span class="line"># 1</span><br><span class="line"># 2</span><br><span class="line"># 3</span><br></pre></td></tr></table></figure>
+<p>由于如add()操作一样，在调用run()之前它并不会真正执行相加操作，assign()一样，只是先固定操作，待run()才执行赋值操作。</p>
+<h2 id="Fetch"><a href="#Fetch" class="headerlink" title="Fetch"></a>Fetch</h2><p>在上个例子中只取了state值，实际可以取回多个返回的tensor。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">input1 = tf.constant(3.0)</span><br><span class="line">input2 = tf.constant(2.0)</span><br><span class="line">input3 = tf.constant(5.0)</span><br><span class="line">intermed = tf.add(input2, input3)</span><br><span class="line">mul = tf.mul(input1, intermed)</span><br><span class="line"></span><br><span class="line">with tf.Session() as sess:</span><br><span class="line">  result = sess.run([mul, intermed])</span><br><span class="line">  print result</span><br><span class="line"></span><br><span class="line"># 输出:</span><br><span class="line"># [array([ 21.], dtype=float32), array([ 7.], dtype=float32)]</span><br></pre></td></tr></table></figure>
+<h2 id="Feed"><a href="#Feed" class="headerlink" title="Feed"></a>Feed</h2><p>TensorFlow提供了feed机制，该机制可以临时代替图中的任意操作tensor，可以对图中任意操作提交补丁，直接插入tensor。feed 只在条用它的方法内有效，方法结束feed就会消失。标记feed操作方法是使用tf.placeholder()，这些操作符被称作==占位符==。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">input1 = tf.placeholder(tf.float32)</span><br><span class="line">input2 = tf.placeholder(tf.float32)</span><br><span class="line">output = tf.mul(input1, input2)</span><br><span class="line"></span><br><span class="line">with tf.Session() as sess:</span><br><span class="line">  print sess.run([output], feed_dict=&#123;input1:[7.], input2:[2.]&#125;)</span><br><span class="line"></span><br><span class="line"># 输出:</span><br><span class="line"># [array([ 14.], dtype=float32)]</span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#TensorFlow"><span class="toc-number">1.</span> <span class="toc-text">TensorFlow</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#计算图"><span class="toc-number">1.1.</span> <span class="toc-text">计算图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#构建图"><span class="toc-number">1.2.</span> <span class="toc-text">构建图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动会话"><span class="toc-number">1.3.</span> <span class="toc-text">启动会话</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#交互式使用"><span class="toc-number">1.4.</span> <span class="toc-text">交互式使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tensor"><span class="toc-number">1.5.</span> <span class="toc-text">Tensor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量Variable"><span class="toc-number">1.6.</span> <span class="toc-text">变量Variable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fetch"><span class="toc-number">1.7.</span> <span class="toc-text">Fetch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Feed"><span class="toc-number">1.8.</span> <span class="toc-text">Feed</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://www.1024b.org/2018/04/02/TensorFlow初探理解/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&text=TensorFlow初探理解"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&title=TensorFlow初探理解"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&is_video=false&description=TensorFlow初探理解"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=TensorFlow初探理解&body=Check out this article: https://www.1024b.org/2018/04/02/TensorFlow初探理解/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&title=TensorFlow初探理解"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&title=TensorFlow初探理解"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&title=TensorFlow初探理解"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&title=TensorFlow初探理解"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://www.1024b.org/2018/04/02/TensorFlow初探理解/&name=TensorFlow初探理解&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2018 梁世宽
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
